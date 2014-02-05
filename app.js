@@ -30,6 +30,20 @@ var connect = require('connect'),
 	  setThrottle: 60000
 	});
 var app = express();
+var passport = require('passport');
+
+passport.use(new FacebookStrategy({
+    clientID: config.facebookappid,
+    clientSecret: config.facebooksecret,
+    callbackURL: "http://localhost:3000/auth/facebook/callback"
+  },
+  function(accessToken, refreshToken, profile, done) {
+    User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+      return done(err, user);
+    });
+  }
+));
+
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -53,6 +67,17 @@ if ('development' == app.get('env')) {
 
 app.get('/', routes.index);
 app.get('/users', user.list);
+app.get('/auth/facebook',
+  passport.authenticate('facebook'));
+
+app.get('/auth/facebook/callback',
+  passport.authenticate('facebook', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  });
+
+
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
