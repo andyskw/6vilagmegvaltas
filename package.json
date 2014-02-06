@@ -12,6 +12,7 @@
     "connect-couchdb": "*",
     "connect": "*",
     "passport": "*",
-    "passport-facebook": "*"
+    "passport-facebook": "*",
+    "connect-ensure-login": "*"
   }
 }
