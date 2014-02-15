@@ -9,6 +9,8 @@ var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
 var config = require('./config');
+var engine = require('ejs-locals');
+var User = require('./models/users');
 var connect = require('connect'),
 	ConnectCouchDB = require('connect-couchdb')(connect);
 
@@ -46,18 +48,28 @@ passport.use(new FacebookStrategy({
       // represent the logged-in user.  In a typical application, you would want
       // to associate the Facebook account with a user record in your database,
       // and return that user instead.
-      return done(null, profile);
+      c = User.findOrCreate(profile, function(ret) {
+        console.log("c:" + ret);
+        ret.id = profile.id;
+        return done(null, ret);  
+      });
+      
     });
   }
 ));
 
 passport.serializeUser(function(user, done) {
+  console.log('serializing: ' + user);
   done(null, user.id);
 });
 
 passport.deserializeUser(function(id, done) {
-
-    done(null,id);
+    profile = {};
+    profile.id = id;
+    User.find(profile, function(ret) {
+      done(null,ret);
+    });
+    
 });
 
 
@@ -65,6 +77,7 @@ passport.deserializeUser(function(id, done) {
 app.disable('etag');
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
+app.engine('ejs', engine);
 app.set('view engine', 'ejs');
 app.use(express.favicon());
 app.use(express.logger('dev'));
@@ -90,7 +103,14 @@ if ('development' == app.get('env')) {
 }
 
 app.get('/', routes.index);
+app.get('/miez', routes.miez);
+app.get('/checkin', routes.checkin);
+app.get('/checkin/all', routes.allcheckin);
+
+
+app.get('/login', routes.login);
 app.get('/users', user.list);
+
 app.get('/auth/facebook',
   passport.authenticate('facebook'));
 

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>6.vilagmegvaltas.com</title>
+
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+
+  </head>
+  <body>
+
+
+  <nav class="navbar navbar-default" role="navigation">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">6.vilagmegvaltas.com</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+      <li class=""><a href="/">Főoldal</a></li>
+        <li class=""><a href="/miez">Mi ez?</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+      <% if (user !== undefined) { %>
+        <li><a href="#"><%= user.name %></a></li>
+        <li><a href="/logout"><span class="glyphicon glyphicon-off"></span> Kilépés</a></li>
+        <% } else { %>
+
+        	<li><a href="/login"><span class="glyphicon glyphicon-user"></span> Bejelentkezés</a></li>
+
+        <% } %>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+						<div class="container-fluid">
+             <div class="row">
+              <div class="col-xs-6 col-md-2">  bal oldali cuccok</div>
+              <div class="col-xs-6 col-md-8 well">
+						<%- body %>
+            </div>
+  <div class="col-xs-6 col-md-2" id="jobb"> jobb oldali cuccok</div>
+</div>
+
+						</div>
+						 <!-- Latest compiled and minified JavaScript -->
+<script src="/javascripts/jquery_1.11.0.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+<script language="javascript">
+$( document ).ready(function () {
+  $.get( "http://6.vilagmegvaltas.com:3000/checkin/all", function( data ) {
+    var res = JSON.parse(data);
+    res.rows.reverse();
+    res.rows.forEach(function(entry) {
+
+      var date = new Date(entry.value.datetime);
+      
+      var year = date.getFullYear();
+      //Month
+      var month = date.getMonth();
+      //Day
+      var day = date.getDate();
+      // hours part from the timestamp
+      var hours = date.getHours();
+      // minutes part from the timestamp
+      var minutes = date.getMinutes();
+      // seconds part from the timestamp
+      var seconds = date.getSeconds();
+
+// will display time in 10:30:23 format
+var formattedTime = year + "-" + month +"-"+day+ " " + hours + ':' + minutes + ':' + seconds;
+
+      var e = $("#jobb").html();
+      if (hours < 6) {
+          $( "#jobb" ).html(  e +  "<div class='panel panel-default'><div class='panel-body'><div class='alert alert-success'><img src='"+ entry.value.pic + "' /> "+entry.value.username+"<br /><span class='badge'>"+formattedTime + "</span></div></div></div>");
+      } else if (hours  == 6 && minutes < 2) {
+                  $( "#jobb" ).html(  e +  "<div class='panel panel-default'><div class='panel-body'><div class='alert alert-warning'><img src='"+ entry.value.pic + "' /> "+entry.value.username+"<br /><span class='badge'>"+formattedTime + "</span></div></div></div>");
+      } else {
+                  $( "#jobb" ).html(  e +  "<div class='alert alert-danger'><img src='"+ entry.value.pic + "' /> "+entry.value.username+"<br /><span class='badge'>"+formattedTime + "</span></div>");
+      }
+
+    }); 
+  
+  
+});
+});
+</script>
+
+  </body>
+</html>
